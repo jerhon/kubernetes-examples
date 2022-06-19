@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-liveness-exec-probe
+spec:
+  containers:
+  - image: busybox
+    command: ["/bin/sh"]
+    args:
+      - -c
+      - echo "started";
+        sleep 15;
+        echo "touching startup file";
+        touch ~/startup;
+        echo "waiting for 15 seconds and then deleting file";
+        sleep 15;
+        echo "deleting file";
+        rm ~/startup;
+        echo "sleeping before restart";
+        sleep 120;
+    name: busybox-liveness-exec-probe
+    startupProbe:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - cat ~/startup
+      periodSeconds: 5
+      failureThreshold: 12
+    livenessProbe:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - cat ~/startup
+      periodSeconds: 1
+      failureThreshold: 1
+  restartPolicy: Always
