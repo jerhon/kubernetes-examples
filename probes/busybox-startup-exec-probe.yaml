@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: busybox-startup-exec-probe
+  name: busybox-startup-exec-probe
+spec:
+  containers:
+  - image: busybox
+    command: ["/bin/sh"]
+    args:
+      - -c
+      - echo "started";
+        sleep 15;
+        echo "touching startup file";
+        touch ~/startup;
+        echo "sleeping before restart";
+        sleep 120;
+    name: busybox-startup-exec-probe
+    startupProbe:
+      exec:
+        command:
+          - /bin/sh
+          - -c
+          - cat ~/startup
+      periodSeconds: 5
+      failureThreshold: 12
+  restartPolicy: Always
