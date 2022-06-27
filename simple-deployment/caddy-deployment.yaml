@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: deployment-example
+  labels:
+    app: caddy-app
+  name: caddy-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: caddy-app
+  template:
+    metadata:
+      labels:
+        app: caddy-app
+    spec:
+      containers:
+      - image: caddy
+        name: caddy-server
+        ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+        command:
+          - /bin/sh
+          - -c
+          - echo "Hello, I'm pod " > /usr/share/caddy/host.txt;
+            hostname >> /usr/share/caddy/host.txt;
+            caddy run --config /etc/caddy/Caddyfile --adapter caddyfile;
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: deployment-example
+  labels:
+    app: caddy-app
+  name: caddy-app-service
+spec:
+  ports:
+  - name: 5678-80
+    port: 5678
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: caddy-app
+  type: LoadBalancer
